@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h5 class="text-body-secondary">
+        Procedure Generator - Form
+    </h5>
+</div>
+
+<div class="container text-left">
+    <div class="row">
+        <div class="col">
+            <small class="text-body-secondary">
+                Database language
+            </small>
+            <select id="DatabaseLanguage" name="DatabaseLanguage"
+                    class="form-select form-select-sm" aria-label="Database language">
+                <option selected>Database language</option>
+                <option value="1">Sql</option>
+                <option value="2">Pl sql</option>
+                <option value="3">My sql</option>
+            </select>
+            <small class="text-body-secondary">
+                Database name
+            </small>
+            <input id="DatabaseName" name="DatabaseName" class="form-control form-control-sm" type="text" placeholder="Database name" aria-label="Database name" />
+            <small class="text-body-secondary">
+                Entity name
+            </small>
+            <input id="EntityName" name="EntityName" class="form-control form-control-sm" type="text" placeholder="Entity name" aria-label="Entity name">
+        </div>
+        <div class="col">
+            <small class="text-body-secondary">Type of procedure</small>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureDelete" name="TypeOfProcedureDelete">
+                <label class="form-check-label" for="TypeOfProcedureDelete">
+                    Delete
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureGetAll" name="TypeOfProcedureGetAll">
+                <label class="form-check-label" for="TypeOfProcedureGetAll">
+                    Get all
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureGetById" name="TypeOfProcedureGetById">
+                <label class="form-check-label" for="TypeOfProcedureGetById">
+                    Get by id
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedurePost" name="TypeOfProcedurePost">
+                <label class="form-check-label" for="TypeOfProcedurePost">
+                    Post
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedurePut" name="TypeOfProcedurePut">
+                <label class="form-check-label" for="TypeOfProcedurePut">
+                    Put
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureAll" name="TypeOfProcedureAll" checked>
+                <label class="form-check-label" for="TypeOfProcedureAll">
+                    All
+                </label>
+            </div>
+        </div>
+        <div class="col">
+            <small class="text-body-secondary">Property name</small>
+            <input id="PropertyName" name="PropertyName" class="form-control form-control-sm" type="text" placeholder="Property name" aria-label="Property name">
+            <small class="text-body-secondary">Property type</small>
+            <select id="PropertyType" name="PropertyType"
+                    class="form-select form-select-sm" aria-label="Property type">
+                <option selected value="Date and time">Date and time</option>
+                <option value="Number">Number</option>
+                <option value="Text">Text</option>
+                <option value="True or false">True or false</option>
+
+            </select>
+            <small id="LabelPropertySize" name="LabelPropertySize" class="text-body-secondary">Property size</small>
+            <input id="PropertySize" name="PropertySize" class="form-control form-control-sm" type="number" placeholder="Property size" aria-label="Property size" disabled>
+            <div style="padding-top: 2vh;">
+                <button id="PropertyAdd" name="PropertyAdd" type="button" class="btn btn-primary btn-sm"
+                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                    Add
+                </button>
+            </div>
+
+        </div>
+        <div class="col">
+            <small id="titleSql" name="titleSql" style="display:none;" class="text-body-secondary">Summary</small>
+            <table id="tableSql" name="tableSql" style="display:none;" class="table table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    //TypeOfProcedureDelete - Events
+    $("#TypeOfProcedureDelete").click(function () {
+        if ($('#TypeOfProcedureDelete').prop('checked')) {
+            $('#TypeOfProcedureAll').prop('checked', false)
+        }
+    });
+
+    //TypeOfProcedureAll - Events
+    $("#TypeOfProcedureAll").click(function () {
+        if ($('#TypeOfProcedureAll').prop('checked')) {
+            $('#TypeOfProcedureDelete').prop('checked', false)
+            $('#TypeOfProcedureGetAll').prop('checked', false)
+            $('#TypeOfProcedureGetById').prop('checked', false)
+            $('#TypeOfProcedurePost').prop('checked', false)
+            $('#TypeOfProcedurePut').prop('checked', false)
+        }
+    });
+
+    //PropertyType - Events
+    $("#PropertyType").change(function () {
+        if ($('#PropertyType').prop('value') === "Text") {
+            $('#PropertySize').removeAttr('disabled');
+        }
+    });
+
+    //PropertyAdd - Events
+    $(document).ready(function () {
+        $('#PropertyAdd').click(function () {
+            var propertyName = $("#PropertyName").val();
+            var propertyType = $("#PropertyType").val();
+            var propertySize = $("#PropertySize").val();
+            let property = {
+                Name: propertyName,
+                Type: propertyType,
+                Size: propertySize
+            };
+            var dataBase = [];
+            let jsonItem = property;
+            if (sessionStorage.hasOwnProperty('listProperties')) {
+                var dataTemp = JSON.parse(sessionStorage.getItem('listProperties'));
+                dataTemp.push(jsonItem);
+                sessionStorage.setItem("listProperties", JSON.stringify(dataTemp))
+                const dataRep = JSON.parse(sessionStorage.getItem('listProperties'));
+                let dataRepLength = dataRep.length;
+                cleanInputs();
+                addNewLineTable(dataRepLength, propertyName, propertyType, propertySize);
+            }else{
+                dataBase.push(jsonItem)
+                sessionStorage.setItem('listProperties', JSON.stringify(dataBase));
+                $('#titleSql').css({ 'display': 'inline-block' });
+                $('#tableSql').css({ 'display': 'inline-block' });
+                cleanInputs();
+                addNewLineTable(1, propertyName, propertyType, propertySize);
+            }
+        });
+    });
+
+    //CleanInputs
+    function cleanInputs(){
+        $("#PropertyName").val('');
+        $("#PropertyType").val('');
+        $("#PropertySize").val('');
+    }
+
+    //AddNewLineTable
+    function addNewLineTable(len, propertyName, propertyType, propertySize) {
+        $('#tableSql tr:last').before('<tr><th scope="row">'+ len +'</th><td>' + propertyName + '</td>' + '<td>' + propertyType + '</td>' + '<td>' + propertySize + '</td></tr>');
+    }
+
+</script>
+
+
+
