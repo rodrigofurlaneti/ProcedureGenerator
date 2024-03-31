@@ -113,13 +113,15 @@ namespace ProcedureGenerator.Web.Services
                 ret = TemplateGet(procedureModel);
             }
 
+            if (procedureModel.TypeOfProcedure.Contains("GetById"))
+            {
+                ret = ret + TemplateGetById(procedureModel);
+            }
 
             if (procedureModel.TypeOfProcedure.Contains("Post"))
             {
                 ret = ret + TemplatePost(procedureModel); 
             }
-
-
 
             return ret;
 
@@ -138,7 +140,7 @@ namespace ProcedureGenerator.Web.Services
                 paramsHeader = paramsHeader + "GetAll] \r\nAS\r\nBEGIN\r\n\tSET NOCOUNT ON;\r\n\tSELECT * \r\n\t\tFROM ";
             }
 
-            paramsHeader = paramsHeader + procedureModel.DatabaseName + "_" + procedureModel.EntityName + " ORDER BY";
+            paramsHeader = paramsHeader + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "\r\n\t\t\tORDER BY";
 
             if (procedureModel.listPropertiesModels.Count > 0)
             {
@@ -147,7 +149,7 @@ namespace ProcedureGenerator.Web.Services
                 {
                     if (item.Name.Equals(first.Name))
                     {
-                        paramsHeader = paramsHeader + " " + item.Name + " ASC\r\n\tEND\r\nGO\r\n\t";
+                        paramsHeader = paramsHeader + "\r\n\t\t\t\t" + item.Name + " ASC\r\n\tEND\r\nGO\r\n\t";
                     }
 
                 }
@@ -158,15 +160,71 @@ namespace ProcedureGenerator.Web.Services
             return ret;
         }
 
+        public static string TemplateGetById(ProcedureModel procedureModel)
+        {
+            string ret = string.Empty;
+
+            string header = "\r\nUSE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_";
+
+            if (procedureModel.TypeOfProcedure.Contains("GetById"))
+            {
+                header = header + "GetById]\r\n\t\t(";
+            }
+
+            string paramsHeader = string.Empty;
+
+            if (procedureModel.listPropertiesModels.Count > 0)
+            {
+                var first = procedureModel.listPropertiesModels.First();
+                foreach (var item in procedureModel.listPropertiesModels)
+                {
+                    if (item.Name.Equals(first.Name))
+                    {
+                        if (item.Type.Equals("Number"))
+                        {
+                            paramsHeader = "@" + item.Name + " INT";
+                        }
+                    }
+
+                }
+            }
+
+            var middle = ")\r\nAS\r\nBEGIN\r\n\tSELECT TOP 1 * FROM [dbo].[" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "]\r\n\t\tWHERE\r\n\t\t\t";
+
+            string paramsMiddle = string.Empty;
+
+            if (procedureModel.listPropertiesModels.Count > 0)
+            {
+                var first = procedureModel.listPropertiesModels.First();
+                foreach (var item in procedureModel.listPropertiesModels)
+                {
+                    if (item.Name.Equals(first.Name))
+                    {
+                        if (item.Type.Equals("Number"))
+                        {
+                            paramsMiddle = item.Name + " = @" + item.Name + ";";
+                        }
+                    }
+
+                }
+            }
+
+            string final = "\r\n\tSET NOCOUNT ON;\r\nEND\r\nGO\r\n\t";
+
+            ret = header + paramsHeader + middle + paramsMiddle + final;
+
+            return ret;
+        }
+
         public static string TemplatePost(ProcedureModel procedureModel)
         {
             string ret = string.Empty;
 
-            string header = "USE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_";
+            string header = "\r\nUSE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_";
 
             if (procedureModel.TypeOfProcedure.Contains("Post"))
             {
-                header = header + "Post](";
+                header = header + "Post]\r\n\t(";
             }
 
             string paramsHeader = string.Empty;
@@ -218,7 +276,7 @@ namespace ProcedureGenerator.Web.Services
                 }
             }
 
-            var middle = ")\r\nAS\r\nBEGIN\r\n\tINSERT INTO [dbo].[" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "] (";
+            var middle = ")\r\nAS\r\nBEGIN\r\n\tINSERT INTO [dbo].[" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "]\r\n\t(";
 
             string paramsMiddle = string.Empty;
 
