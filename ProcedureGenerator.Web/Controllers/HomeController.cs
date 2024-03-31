@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ProcedureGenerator.Web.Models;
+using ProcedureGenerator.Web.Services;
 using System.Diagnostics;
 
 namespace ProcedureGenerator.Web.Controllers
@@ -15,6 +17,26 @@ namespace ProcedureGenerator.Web.Controllers
 
         public IActionResult Index()
         {
+            return View();
+        }
+
+        [Route("/Gateway")]
+        [HttpPost]
+        public IActionResult Gateway()
+        {
+            var template = string.Empty;
+
+            var modelFormCollection = Request.Form;
+            
+            if (modelFormCollection != null)
+            {
+                var model = HomeService.DeparaController(modelFormCollection);
+
+                template = HomeService.Template(model);
+            }
+
+            ViewBag.Gateway = template;
+            
             return View();
         }
 

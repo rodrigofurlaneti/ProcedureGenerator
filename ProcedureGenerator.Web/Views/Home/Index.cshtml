@@ -9,34 +9,33 @@
 </div>
 
 <div class="container text-left">
-    <div class="row">
-        <div class="col">
-            <small class="text-body-secondary">
+    <form action="/Gateway" method="post">
+        <div class="row">
+            <div class="col-3">
+                <small class="text-body-secondary">
                 Database language
-            </small>
-            <select id="DatabaseLanguage" name="DatabaseLanguage"
-                    class="form-select form-select-sm" aria-label="Database language">
-                <option selected>Database language</option>
-                <option value="1">Sql</option>
-                <option value="2">Pl sql</option>
-                <option value="3">My sql</option>
-            </select>
-            <small class="text-body-secondary">
-                Database name
-            </small>
-            <input id="DatabaseName" name="DatabaseName" class="form-control form-control-sm" type="text" placeholder="Database name" aria-label="Database name" />
-            <small class="text-body-secondary">
-                Entity name
-            </small>
-            <input id="EntityName" name="EntityName" class="form-control form-control-sm" type="text" placeholder="Entity name" aria-label="Entity name">
-        </div>
-        <div class="col">
-            <small class="text-body-secondary">Type of procedure</small>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureDelete" name="TypeOfProcedureDelete">
-                <label class="form-check-label" for="TypeOfProcedureDelete">
-                    Delete
-                </label>
+                </small>
+                <select id="DatabaseLanguage" name="DatabaseLanguage"
+                        class="form-select form-select-sm" aria-label="Database language">
+                    <option selected>Database language</option>
+                    <option value="1">Sql</option>
+                </select>
+                <small class="text-body-secondary">
+                    Database name
+                </small>
+                <input id="DatabaseName" name="DatabaseName" class="form-control form-control-sm" type="text" placeholder="Database name" aria-label="Database name" />
+                <small class="text-body-secondary">
+                    Entity name
+                </small>
+                <input id="EntityName" name="EntityName" class="form-control form-control-sm" type="text" placeholder="Entity name" aria-label="Entity name">
+            </div>
+            <div class="col-2">
+                <small class="text-body-secondary">Type of procedure</small>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureDelete" name="TypeOfProcedureDelete">
+                    <label class="form-check-label" for="TypeOfProcedureDelete">
+                        Delete
+                    </label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="" id="TypeOfProcedureGetAll" name="TypeOfProcedureGetAll">
@@ -69,7 +68,7 @@
                 </label>
             </div>
         </div>
-        <div class="col">
+        <div class="col-3">
             <small class="text-body-secondary">Property name</small>
             <input id="PropertyName" name="PropertyName" class="form-control form-control-sm" type="text" placeholder="Property name" aria-label="Property name">
             <small class="text-body-secondary">Property type</small>
@@ -91,15 +90,15 @@
             </div>
 
         </div>
-        <div class="col">
+        <div class="col-4">
             <small id="titleSql" name="titleSql" style="display:none;" class="text-body-secondary">Summary</small>
             <table id="tableSql" name="tableSql" style="display:none;" class="table table-dark">
                 <thead>
                     <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Size</th>
+                        <th scope="col-2"></th>
+                        <th scope="col-3">Name</th>
+                        <th scope="col-5">Type</th>
+                        <th scope="col-2">Size</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,15 +106,48 @@
                     </tr>
                 </tbody>
             </table>
-
+            <input id="InputListProperties" name="InputListProperties" type="hidden" />
+            <button id="ProcedureCreate" name="ProcedureCreate" type="submit" class="btn btn-primary btn-sm"
+                style="display:none; --bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                Create
+            </button>
         </div>
-    </div>
+        </div>
+    </form>
 </div>
 
 <script>
     //TypeOfProcedureDelete - Events
     $("#TypeOfProcedureDelete").click(function () {
         if ($('#TypeOfProcedureDelete').prop('checked')) {
+            $('#TypeOfProcedureAll').prop('checked', false)
+        }
+    });
+
+    //TypeOfProcedurePost - Events
+    $("#TypeOfProcedurePost").click(function () {
+        if ($('#TypeOfProcedurePost').prop('checked')) {
+            $('#TypeOfProcedureAll').prop('checked', false)
+        }
+    });
+
+    //TypeOfProcedurePut - Events
+    $("#TypeOfProcedurePut").click(function () {
+        if ($('#TypeOfProcedurePut').prop('checked')) {
+            $('#TypeOfProcedureAll').prop('checked', false)
+        }
+    });
+
+    //TypeOfProcedureGetAll - Events
+    $("#TypeOfProcedureGetAll").click(function () {
+        if ($('#TypeOfProcedureGetAll').prop('checked')) {
+            $('#TypeOfProcedureAll').prop('checked', false)
+        }
+    });
+
+    //TypeOfProcedureGetById - Events
+    $("#TypeOfProcedureGetById").click(function () {
+        if ($('#TypeOfProcedureGetAll').prop('checked')) {
             $('#TypeOfProcedureAll').prop('checked', false)
         }
     });
@@ -151,21 +183,23 @@
             };
             var dataBase = [];
             let jsonItem = property;
-            if (sessionStorage.hasOwnProperty('listProperties')) {
-                var dataTemp = JSON.parse(sessionStorage.getItem('listProperties'));
+            if (sessionStorage.hasOwnProperty('ListProperties')) {
+                var dataTemp = JSON.parse(sessionStorage.getItem('ListProperties'));
                 dataTemp.push(jsonItem);
-                sessionStorage.setItem("listProperties", JSON.stringify(dataTemp))
-                const dataRep = JSON.parse(sessionStorage.getItem('listProperties'));
+                sessionStorage.setItem("ListProperties", JSON.stringify(dataTemp))
+                const dataRep = JSON.parse(sessionStorage.getItem('ListProperties'));
                 let dataRepLength = dataRep.length;
                 cleanInputs();
                 addNewLineTable(dataRepLength, propertyName, propertyType, propertySize);
+                $("#InputListProperties").val(JSON.stringify(dataRep));
             }else{
                 dataBase.push(jsonItem)
-                sessionStorage.setItem('listProperties', JSON.stringify(dataBase));
+                sessionStorage.setItem('ListProperties', JSON.stringify(dataBase));
                 $('#titleSql').css({ 'display': 'inline-block' });
                 $('#tableSql').css({ 'display': 'inline-block' });
                 cleanInputs();
                 addNewLineTable(1, propertyName, propertyType, propertySize);
+                $("#InputListProperties").val(JSON.stringify(dataBase));
             }
         });
     });
@@ -180,7 +214,14 @@
     //AddNewLineTable
     function addNewLineTable(len, propertyName, propertyType, propertySize) {
         $('#tableSql tr:last').before('<tr><th scope="row">'+ len +'</th><td>' + propertyName + '</td>' + '<td>' + propertyType + '</td>' + '<td>' + propertySize + '</td></tr>');
+        $('#ProcedureCreate').css("display", "block");
     }
+
+    //ListProperties - Events
+    $("#ProcedureCreate").click(function () {
+        var dataTemp = JSON.parse(sessionStorage.getItem('ListProperties'));
+        $("#InputListProperties").val(JSON.stringify(dataTemp));
+    });
 
 </script>
 
