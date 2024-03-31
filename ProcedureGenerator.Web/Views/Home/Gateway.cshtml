@@ -1,1 +1,14 @@
-﻿@Html.TextArea("txtComment", (string)(ViewBag.Gateway), new { rows=20, columns=80, @class = "form-control", name = "txtComment"})
+﻿<button onclick="CopyText()">Copy text</button>
+@Html.TextArea("txtComment", (string)(ViewBag.Gateway), new { rows=20, columns=80, @class = "form-control", name = "txtComment"})
+
+<script>
+    //CopyText
+    function CopyText() {
+        var copyText = document.getElementById("txtComment");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+        alert("Copied the text: " + copyText.value);
+    }
+
+</script>
