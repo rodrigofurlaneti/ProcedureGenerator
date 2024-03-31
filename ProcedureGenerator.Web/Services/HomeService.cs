@@ -15,14 +15,6 @@ namespace ProcedureGenerator.Web.Services
                 {
                     procedureModel.DatabaseLanguage = "Sql";
                 }
-                else if (form.Key.Equals("DatabaseLanguage") && form.Value.Equals("2"))
-                {
-                    procedureModel.DatabaseLanguage = "Pl Sql";
-                }
-                else if (form.Key.Equals("DatabaseLanguage") && form.Value.Equals("3"))
-                {
-                    procedureModel.DatabaseLanguage = "My Sql";
-                }
                 else if (form.Key.Equals("DatabaseName") && !form.Value.Equals(string.Empty))
                 {
                     procedureModel.DatabaseName = form.Value;
@@ -31,30 +23,67 @@ namespace ProcedureGenerator.Web.Services
                 {
                     procedureModel.EntityName = form.Value;
                 }
-                else if (form.Key.Equals("TypeOfProcedurePost"))
+
+                if (form.Key.Equals("TypeOfProcedurePost"))
                 {
-                    procedureModel.TypeOfProcedure = "Post";
+                    if (procedureModel.TypeOfProcedure != null )
+                    {
+                        procedureModel.TypeOfProcedure = procedureModel.TypeOfProcedure + ", Post";
+                    }
+                    else
+                    {
+                        procedureModel.TypeOfProcedure = "Post";
+                    }
                 }
-                else if (form.Key.Equals("TypeOfProcedureGetAl"))
+                if (form.Key.Equals("TypeOfProcedureGetAll"))
                 {
-                    procedureModel.TypeOfProcedure = "GetAll";
+                    if (procedureModel.TypeOfProcedure != null)
+                    {
+                        procedureModel.TypeOfProcedure = procedureModel.TypeOfProcedure + ", GetAll";
+                    }
+                    else
+                    {
+                        procedureModel.TypeOfProcedure = "GetAll";
+                    }
                 }
-                else if (form.Key.Equals("TypeOfProcedureGetById"))
+                if (form.Key.Equals("TypeOfProcedureGetById"))
                 {
-                    procedureModel.TypeOfProcedure = "GetById";
+                    if (procedureModel.TypeOfProcedure != null)
+                    {
+                        procedureModel.TypeOfProcedure = procedureModel.TypeOfProcedure + ", GetById";
+                    }
+                    else
+                    {
+                        procedureModel.TypeOfProcedure = "GetById";
+                    }
                 }
-                else if (form.Key.Equals("TypeOfProcedureDelete"))
+                if (form.Key.Equals("TypeOfProcedureDelete"))
                 {
-                    procedureModel.TypeOfProcedure = "Delete";
+                    if (procedureModel.TypeOfProcedure != null)
+                    {
+                        procedureModel.TypeOfProcedure = procedureModel.TypeOfProcedure + ", Delete";
+                    }
+                    else
+                    {
+                        procedureModel.TypeOfProcedure = "Delete";
+                    }
                 }
-                else if (form.Key.Equals("TypeOfProcedurePut"))
+                if (form.Key.Equals("TypeOfProcedurePut"))
                 {
-                    procedureModel.TypeOfProcedure = "Put";
+                    if (procedureModel.TypeOfProcedure != null)
+                    {
+                        procedureModel.TypeOfProcedure = procedureModel.TypeOfProcedure + ", Put";
+                    }
+                    else
+                    {
+                        procedureModel.TypeOfProcedure = "Put";
+                    }
                 }
-                else if (form.Key.Equals("TypeOfProcedureAll"))
+                if (form.Key.Equals("TypeOfProcedureAll"))
                 {
                     procedureModel.TypeOfProcedure = "All";
                 }
+                
                 else if (form.Key.Equals("InputListProperties"))
                 {
                     var itens = JsonSerializer.Deserialize<List<PropertiesModel>>(form.Value);
@@ -79,21 +108,67 @@ namespace ProcedureGenerator.Web.Services
         {
             string ret = string.Empty;
 
-            if (procedureModel.TypeOfProcedure.Equals("Post"))
+            if (procedureModel.TypeOfProcedure.Contains("GetAll"))
             {
-                ret = TemplatePost(procedureModel); 
+                ret = TemplateGet(procedureModel);
             }
+
+
+            if (procedureModel.TypeOfProcedure.Contains("Post"))
+            {
+                ret = ret + TemplatePost(procedureModel); 
+            }
+
+
 
             return ret;
 
+        }
+
+        public static string TemplateGet(ProcedureModel procedureModel)
+        {
+            string ret = string.Empty;
+
+            string header = "USE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\n\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_";
+
+            string paramsHeader = string.Empty;
+
+            if (procedureModel.TypeOfProcedure.Contains("GetAll"))
+            {
+                paramsHeader = paramsHeader + "GetAll] \r\nAS\r\nBEGIN\r\n\tSET NOCOUNT ON;\r\n\tSELECT * \r\n\t\tFROM ";
+            }
+
+            paramsHeader = paramsHeader + procedureModel.DatabaseName + "_" + procedureModel.EntityName + " ORDER BY";
+
+            if (procedureModel.listPropertiesModels.Count > 0)
+            {
+                var first = procedureModel.listPropertiesModels.First();
+                foreach (var item in procedureModel.listPropertiesModels)
+                {
+                    if (item.Name.Equals(first.Name))
+                    {
+                        paramsHeader = paramsHeader + " " + item.Name + " ASC\r\n\tEND\r\nGO\r\n\t";
+                    }
+
+                }
+            }
+            
+            ret = header + paramsHeader;
+
+            return ret;
         }
 
         public static string TemplatePost(ProcedureModel procedureModel)
         {
             string ret = string.Empty;
 
-            string header = "USE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_" + procedureModel.TypeOfProcedure + "](";
-            
+            string header = "USE [" + procedureModel.DatabaseName + "]\r\nGO\r\n\r\nSET ANSI_NULLS ON\r\nGO\r\n\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\nCREATE PROCEDURE [dbo].[USP_" + procedureModel.DatabaseName + "_" + procedureModel.EntityName + "_";
+
+            if (procedureModel.TypeOfProcedure.Contains("Post"))
+            {
+                header = header + "Post](";
+            }
+
             string paramsHeader = string.Empty;
 
             if(procedureModel.listPropertiesModels.Count > 0)
@@ -183,7 +258,7 @@ namespace ProcedureGenerator.Web.Services
                 }
             }
 
-            string final = ")\r\n\tSET NOCOUNT ON;\r\nEND\r\nGO";
+            string final = ")\r\n\tSET NOCOUNT ON;\r\nEND\r\nGO\r\n\t";
 
             ret = header + paramsHeader + middle + paramsMiddle + baseboard + paramsBaseboard + final;
 
